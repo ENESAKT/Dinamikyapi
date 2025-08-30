@@ -133,7 +133,7 @@ python manage.py createsuperuser
 
 #### 6. Sunucuyu Başlatın
 ```bash
-python manage.py runserver
+python manage.py runserversl kullanıyor
 ```
 
 #### 7. Tarayıcıda Açın
