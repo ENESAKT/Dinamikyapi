@@ -167,65 +167,83 @@ function generateFakeData() {
     console.log('🎲 Test verisi oluşturuluyor...');
     
     try {
-        // Plaka (sutun_23)
-        const plakaInput = document.querySelector('input[name="sutun_23"]');
-        if (plakaInput) {
-            const randomPlaka = Math.floor(Math.random() * 999) + 1;
-            plakaInput.value = randomPlaka.toString();
-            console.log('🚗 Plaka set edildi:', plakaInput.value);
-        }
+        // Dinamik olarak tüm input alanlarını bul
+        const inputs = document.querySelectorAll('input[name*="sutun_"], select[name*="sutun_"]');
         
-        // İl Adı (sutun_24)
-        const iller = ['Adana', 'Ankara', 'İstanbul', 'İzmir', 'Bursa', 'Antalya'];
-        const ilInput = document.querySelector('input[name="sutun_24"]');
-        if (ilInput) {
-            const randomIl = iller[Math.floor(Math.random() * iller.length)];
-            ilInput.value = randomIl;
-            console.log('🏙️ İl adı set edildi:', ilInput.value);
-        }
+        // İl listesi
+        const iller = ['Adana', 'Ankara', 'İstanbul', 'İzmir', 'Bursa', 'Antalya', 'Konya', 'Gaziantep', 'Samsun', 'Kayseri'];
         
-        // Kurulacak Cihaz Sayısı (sutun_25)
-        const randomKurulacak = Math.floor(Math.random() * 100) + 10;
-        const kurulacakInput = document.querySelector('input[name="sutun_25"]');
-        if (kurulacakInput) {
-            kurulacakInput.value = randomKurulacak;
-            console.log('📱 Kurulacak cihaz sayısı set edildi:', randomKurulacak);
-        }
+        let kurulacakValue = 0;
+        let kurulanValue = 0;
         
-        // Kurulan Cihaz Sayısı (sutun_26)
-        const randomKurulan = Math.floor(Math.random() * randomKurulacak);
-        const kurulanInput = document.querySelector('input[name="sutun_26"]');
-        if (kurulanInput) {
-            kurulanInput.value = randomKurulan;
-            console.log('📱 Kurulan cihaz sayısı set edildi:', randomKurulan);
-        }
-        
-        // Arızalı Cihaz Sayısı (sutun_27)
-        const randomArizali = Math.floor(Math.random() * 20);
-        const arizaliInput = document.querySelector('input[name="sutun_27"]');
-        if (arizaliInput) {
-            arizaliInput.value = randomArizali;
-            console.log('📱 Arızalı cihaz sayısı set edildi:', randomArizali);
-        }
-        
-        // Tamamlanma Durumu (sutun_28) - readonly olduğu için otomatik hesaplanır
-        const tamamlanmaInput = document.querySelector('input[name="sutun_28"]');
-        if (tamamlanmaInput) {
-            const tamamlanmaYuzdesi = Math.round((randomKurulan / randomKurulacak) * 100);
-            tamamlanmaInput.value = tamamlanmaYuzdesi;
-            console.log('🔍 Tamamlanma yüzdesi set edildi:', tamamlanmaYuzdesi);
-        }
-        
-        // Diğer dinamik sütunlar (sutun_32, sutun_33, sutun_35)
-        const dinamikInputs = ['sutun_32', 'sutun_33', 'sutun_35'];
-        dinamikInputs.forEach(inputName => {
-            const input = document.querySelector(`input[name="${inputName}"]`);
-            if (input) {
+        // Her input için uygun test verisi oluştur
+        inputs.forEach(input => {
+            const fieldName = input.name;
+            const label = input.closest('.md\\:col-span-2, div').querySelector('label')?.textContent?.trim() || '';
+            
+            if (label.includes('İl') || label.includes('il')) {
+                // İl seçimi için select veya input
+                if (input.tagName === 'SELECT') {
+                    const randomIl = iller[Math.floor(Math.random() * iller.length)];
+                    // Select için option'ları kontrol et
+                    for (let option of input.options) {
+                        if (option.value === randomIl) {
+                            input.value = randomIl;
+                            break;
+                        }
+                    }
+                    console.log('🏙️ İl seçildi:', input.value);
+                } else {
+                    const randomIl = iller[Math.floor(Math.random() * iller.length)];
+                    input.value = randomIl;
+                    console.log('🏙️ İl adı set edildi:', input.value);
+                }
+            } else if (label.includes('Plaka') || label.includes('plaka')) {
+                const randomPlaka = Math.floor(Math.random() * 999) + 1;
+                input.value = randomPlaka.toString();
+                console.log('🚗 Plaka set edildi:', input.value);
+            } else if (label.includes('Kurulacak') || label.includes('kurulacak')) {
+                kurulacakValue = Math.floor(Math.random() * 100) + 10;
+                input.value = kurulacakValue;
+                console.log('📱 Kurulacak cihaz sayısı set edildi:', kurulacakValue);
+            } else if (label.includes('Kurulan') || label.includes('kurulan')) {
+                kurulanValue = Math.floor(Math.random() * kurulacakValue);
+                input.value = kurulanValue;
+                console.log('📱 Kurulan cihaz sayısı set edildi:', kurulanValue);
+            } else if (label.includes('Arızalı') || label.includes('arızalı')) {
+                const randomArizali = Math.floor(Math.random() * 20);
+                input.value = randomArizali;
+                console.log('📱 Arızalı cihaz sayısı set edildi:', randomArizali);
+            } else if (label.includes('Tamamlanma') || label.includes('tamamlanma') || label.includes('%')) {
+                // Tamamlanma alanını readonly bırak, otomatik hesaplanacak
+                if (kurulacakValue > 0) {
+                    const tamamlanmaYuzdesi = Math.round((kurulanValue / kurulacakValue) * 100);
+                    input.value = tamamlanmaYuzdesi;
+                    console.log('🔍 Tamamlanma yüzdesi set edildi:', tamamlanmaYuzdesi);
+                }
+            } else if (input.type === 'date') {
+                // Tarih alanları için bugünün tarihi
+                const today = new Date();
+                const dateString = today.toISOString().split('T')[0];
+                input.value = dateString;
+                console.log('📅 Tarih set edildi:', dateString);
+            } else if (input.type === 'number') {
+                // Diğer sayısal alanlar
+                const randomNumber = Math.floor(Math.random() * 100) + 1;
+                input.value = randomNumber;
+                console.log(`🔢 ${fieldName} sayısal değer set edildi:`, randomNumber);
+            } else if (input.type === 'text' && !input.readOnly) {
+                // Diğer text alanlar
                 const randomText = `Test_${Math.floor(Math.random() * 1000)}`;
                 input.value = randomText;
-                console.log(`📝 ${inputName} değeri set edildi: ${randomText}`);
+                console.log(`📝 ${fieldName} text değer set edildi:`, randomText);
             }
         });
+        
+        // Tamamlanma hesaplamasını tetikle
+        setTimeout(() => {
+            calculateCompletion();
+        }, 100);
         
         // Başarı mesajı
         const notification = document.createElement('div');
@@ -264,11 +282,32 @@ document.addEventListener('DOMContentLoaded', function() {
         form.addEventListener('submit', function(e) {
             console.log('📤 Form submit ediliyor...');
             
+            // CSRF token kontrolü
+            const csrfToken = document.querySelector('input[name="csrfmiddlewaretoken"]');
+            if (!csrfToken) {
+                console.error('❌ CSRF token bulunamadı!');
+                e.preventDefault();
+                alert('CSRF token hatası! Sayfayı yenileyin.');
+                return;
+            }
+            console.log('✅ CSRF token bulundu:', csrfToken.value.substring(0, 10) + '...');
+            
             // Tüm form değerlerini kontrol et
             const formData = new FormData(form);
             console.log('📋 Form verileri:');
+            let hasData = false;
             for (let [key, value] of formData.entries()) {
+                if (value && value.trim()) {
+                    hasData = true;
+                }
                 console.log(`  ${key}: "${value}"`);
+            }
+            
+            if (!hasData) {
+                console.warn('⚠️ Form boş görünüyor!');
+                e.preventDefault();
+                alert('Lütfen en az bir alan doldurun!');
+                return;
             }
             
             // Boş alanları kontrol et
@@ -284,6 +323,8 @@ document.addEventListener('DOMContentLoaded', function() {
             } else {
                 console.log('✅ Tüm alanlar dolu');
             }
+            
+            console.log('🚀 Form gönderiliyor...');
         });
     }
     

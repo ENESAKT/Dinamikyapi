@@ -382,10 +382,14 @@ def veri_ekle(request):
         return redirect('veri_yonetimi:user_login')
     
     if request.method == 'POST':
+        print(f"🔍 POST Request received from user: {request.user.username}")
+        print(f"📋 POST Data: {request.POST}")
         
         form = AnaVeriForm(request.POST, user=request.user)
+        print(f"📝 Form created for user: {request.user.username}")
         
         if form.is_valid():
+            print("✅ Form validation successful")
             try:
                 # Form'u doğrudan kaydet (AnaVeri ve VeriDeger'lar birlikte)
                 ana_veri = form.save()
@@ -422,9 +426,12 @@ def veri_ekle(request):
                 logger.error(f'Veri ekleme hatası: {str(e)}')
                 logger.error(f'Form data: {request.POST}')
         else:
+            print("❌ Form validation failed")
+            print("Form errors:")
             for field_name, errors in form.errors.items():
                 print(f"  - {field_name}: {errors}")
     else:
+        print(f"🔄 GET Request received from user: {request.user.username}")
         form = AnaVeriForm(user=request.user)
     
     # Aktif sütunları al
